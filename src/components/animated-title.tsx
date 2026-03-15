@@ -12,6 +12,7 @@ export const AnimatedTitle = ({
   containerClass,
 }: PropsWithChildren<AnimatedTitleProps>) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentKey = typeof children === "string" ? children : typeof children === "number" ? String(children) : "";
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -33,7 +34,7 @@ export const AnimatedTitle = ({
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [contentKey]);
 
   return (
     <div ref={containerRef} className={cn("animated-title", containerClass)}>

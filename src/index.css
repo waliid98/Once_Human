@@ -22,7 +22,7 @@ body {
   --color-yellow-100: #8e983f;
   --color-yellow-300: #edff66;
 
-  --font-zentry: "zentry", "sans-serif";
+  --font-zentry: "zentry", "General Sans", "general", sans-serif;
   --font-general: "general", "sans-serif";
   --font-circular-web: "circular-web", "sans-serif";
   --font-robert-medium: "robert-medium", "sans-serif";
@@ -87,7 +87,7 @@ body {
   }
 
   .special-font b {
-    font-family: "Zentry";
+    font-family: "zentry", "General Sans", "general", sans-serif;
     font-feature-settings: "ss01" on;
   }
 
@@ -108,7 +108,8 @@ body {
   }
 
   .animated-word {
-    @apply font-zentry font-black opacity-0;
+    @apply font-black opacity-0;
+    font-family: "zentry", "General Sans", "general", sans-serif;
     transform: translate3d(10px, 51px, -60px) rotateY(60deg) rotateX(-40deg);
     transform-origin: 50% 50% -150px !important;
     will-change: opacity, transform;

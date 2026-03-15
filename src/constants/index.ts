@@ -1,13 +1,15 @@
 import { FaDiscord, FaTwitch, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import type { TranslationKey } from "@/lib/i18n";
 
-export const NAV_ITEMS = [
-  { label: "TRAILER", href: "#hero" },
-  { label: "About", href: "#about" },
-  { label: "Nexus", href: "#nexus" },
-  { label: "Story", href: "#story" },
-  { label: "Contact", href: "#contact" },
-] as const;
+export const NAV_ITEMS: readonly { labelKey: TranslationKey; href: string }[] = [
+  { labelKey: "nav.trailer", href: "#hero" },
+  { labelKey: "nav.about", href: "#about" },
+  { labelKey: "nav.deviation", href: "#scenario" },
+  { labelKey: "nav.qa", href: "#story" },
+  { labelKey: "nav.restrictions", href: "#restrictions" },
+  { labelKey: "nav.contact", href: "#contact" },
+];
 
 export const LINKS = {
   sourceCode: "https://github.com/sanidhyy/game-website",
@@ -33,22 +35,13 @@ export const SOCIAL_LINKS = [
 ] as const;
 
 export const VIDEO_LINKS = {
-  feature1:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCc56aV03LYRyJDZsOPGdFTt0lQuHLkeqjKCao1",
-  feature2:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCclcn5JiTo8NUtBfpgkOmXZ2CT3DjMr19Yqlac",
-  feature3:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCcbZvH6O7fXDrfMZ6S457EQsgoxTCIz1kjlnVd",
-  feature4:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCcSrGHFCyiMbxBtTacUmFzn4dZpwVYNfvR6WLg",
-  feature5:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCc1qT68sSEu6tgkCBNP3FH45AUe70hrbTaxYDm",
-  hero1:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCc5wEKtxLYRyJDZsOPGdFTt0lQuHLkeqjKCao1",
-  hero2:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCcLjP2Y7QEQuN5THDwzeBx4OvmaFZjP6ysCKk3",
-  hero3:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCcpmpmzmuj1IHWSEokgRuN2hMcUpBq0xQery3i",
-  hero4:
-    "https://93w95scdts.ufs.sh/f/AOfILeWJzqCcpB0GHsouj1IHWSEokgRuN2hMcUpBq0xQery3",
-};
+  feature1: "/videos/ved3.mp4",
+  feature2: "/videos/ved5.mp4",
+  feature3: "/videos/ved6.mp4",
+  feature4: "/videos/ved7.mp4",
+  feature5: "/videos/ved7.mp4",
+  hero1: "/videos/20260119.mp4",
+  hero2: "/videos/ved2.mp4",
+  hero3: "/videos/ved6.mp4",
+  hero4: "/videos/ved7.mp4",
+} as const;

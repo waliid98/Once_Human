@@ -1,9 +1,10 @@
 import { About } from "@/components/about";
 import { Contact } from "@/components/contact";
-import { Features } from "@/components/features";
+import { Features } from "@/components/Scenario";
 import { Footer } from "@/components/footer";
 import { Hero } from "@/components/hero";
 import { Navbar } from "@/components/navbar";
+import { Restrictions } from "@/components/restrictions";
 import { Story } from "@/components/story";
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
         <About />
         <Features />
         <Story />
+        <Restrictions />
         <Contact />
       </main>
 

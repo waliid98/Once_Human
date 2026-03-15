@@ -1,95 +1,121 @@
-import gsap from "gsap";
-import { useRef } from "react";
-
+import { useState } from "react";
 import { AnimatedTitle } from "./animated-title";
-import { Button } from "./button";
-import { RoundedCorners } from "./rounded-corners";
+import { FiPlus } from "react-icons/fi"; // Remplacement par un Plus pour un look plus moderne
+import { useI18n } from "@/lib/i18n";
+
+const FAQ_DATA = [
+  { qKey: "story.faq.q1", aKey: "story.faq.a1" },
+  { qKey: "story.faq.q2", aKey: "story.faq.a2" },
+  { qKey: "story.faq.q3", aKey: "story.faq.a3" },
+  { qKey: "story.faq.q4", aKey: "story.faq.a4" },
+] as const;
 
 export const Story = () => {
-  const frameRef = useRef<HTMLImageElement>(null);
+  const { t } = useI18n();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const handleMouseLeave = () => {
-    const element = frameRef.current;
-
-    if (!element) return;
-
-    gsap.to(element, {
-      duration: 0.3,
-      rotateX: 0,
-      rotateY: 0,
-      ease: "power1.inOut",
-    });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLImageElement>) => {
-    const { clientX, clientY } = e;
-    const element = frameRef.current;
-
-    if (!element) return;
-
-    const rect = element.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -10;
-    const rotateY = ((x - centerX) / centerX) * 10;
-
-    gsap.to(element, {
-      duration: 0.3,
-      rotateX,
-      rotateY,
-      transformPerspective: 500,
-      ease: "power1.inOut",
-    });
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section id="story" className="min-h-dvh w-screen bg-black text-blue-50">
-      <div className="flex size-full flex-col items-center py-10 pb-24">
-        <p className="font-general text-sm uppercase md:text-[10px]">
-          the multiversal ip world
-        </p>
+    <section
+      id="story"
+      className="relative min-h-dvh w-screen overflow-hidden bg-black px-6 py-32 text-white"
+    >
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-25"
+          style={{
+            backgroundImage:
+              "url(/img/p1_086_en_横_滑翔场景展示02_0s_陈晓尧_AIGC绘画_1200x628.webp)",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/70 to-black/90" />
 
-        <div className="relative size-full">
-          <AnimatedTitle containerClass="mt-5 pointer-events-none mix-blend-difference relative z-10">
-            {"The St<b>o</b>ry of <br /> a hidden real<b>m</b>"}
+        <div className="absolute -top-24 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-violet-500/10 blur-[120px]" />
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, #333 1px, transparent 1px), linear-gradient(to bottom, #333 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+            maskImage: "radial-gradient(circle at 50% 50%, black, transparent 80%)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 flex size-full flex-col items-center">
+        {/* Header Section */}
+        <div className="flex flex-col items-center mb-24 text-center">
+          <p className="font-general text-xs uppercase tracking-[0.5em] text-violet-400 mb-4">
+            {t("story.kicker")}
+          </p>
+          <AnimatedTitle containerClass="mt-5 pointer-events-none !text-white drop-shadow-[0_0_18px_rgba(168,85,247,0.45)]">
+            {t("story.title")}
           </AnimatedTitle>
+          <div className="mx-auto mt-8 h-[1px] w-24 bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
+        </div>
 
-          <div className="story-img-container">
-            <div className="story-img-mask">
-              <div className="story-img-content">
-                <img
-                  ref={frameRef}
-                  onMouseLeave={handleMouseLeave}
-                  onMouseUp={handleMouseLeave}
-                  onMouseEnter={handleMouseLeave}
-                  onMouseMove={handleMouseMove}
-                  src="/img/entrance.webp"
-                  alt="Entrance"
-                  className="object-contain"
-                />
+        {/* FAQ Accordion Container */}
+        <div className="w-full max-w-4xl space-y-4">
+          {FAQ_DATA.map((item, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <div 
+                key={index} 
+                className={`group relative overflow-hidden rounded-2xl border transition-all duration-500 ${
+                  isOpen 
+                    ? 'border-white/20 bg-white/[0.05] backdrop-blur-md' 
+                    : 'border-white/5 bg-transparent hover:border-white/10'
+                }`}
+              >
+                <button 
+                  onClick={() => toggleFAQ(index)}
+                  className="flex w-full items-center justify-between p-6 md:p-8 text-left focus:outline-none"
+                >
+                  <div className="flex items-center gap-6">
+                    <span className={`font-mono text-sm transition-colors duration-500 ${isOpen ? 'text-violet-400' : 'text-zinc-600'}`}>
+                      0{index + 1}
+                    </span>
+                    <h3 className={`text-xl md:text-2xl font-robert-medium transition-colors duration-500 ${
+                      isOpen ? 'text-white drop-shadow-[0_0_14px_rgba(236,72,153,0.45)]' : 'text-white/85 drop-shadow-[0_0_10px_rgba(236,72,153,0.25)]'
+                    }`}>
+                      {t(item.qKey)}
+                    </h3>
+                  </div>
+
+                  <div className={`relative flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-500 ${
+                    isOpen ? 'rotate-[135deg] border-violet-500 bg-violet-500 text-white' : 'border-zinc-700 text-zinc-500'
+                  }`}>
+                    <FiPlus className="text-xl" />
+                  </div>
+                </button>
+
+                {/* Smooth Height Animation */}
+                <div 
+                  className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${
+                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-16 pb-8 md:pb-10">
+                      <p className="font-circular-web text-lg text-zinc-400 leading-relaxed max-w-2xl">
+                        {t(item.aKey)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Hover Glow Effect */}
+                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-violet-500/0 via-violet-500/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               </div>
-            </div>
-
-            <RoundedCorners />
-          </div>
+            );
+          })}
         </div>
 
-        <div className="-mt-80 flex w-full justify-center md:me-44 md:-mt-64 md:justify-end">
-          <div className="flex h-full w-fit flex-col items-center md:items-start">
-            <p className="font-circular-web mt-3 max-w-sm text-center text-violet-50 md:text-start">
-              Where realms converge, lies Zentry the boundless pillar. Discover
-              its secrets and shape your fate amidst infinite opportunities.
-            </p>
-
-            <Button id="realm-button" containerClass="mt-5">
-              Discover Prologue
-            </Button>
-          </div>
-        </div>
+        {/* Footer Action - Espace vide pour tes futurs boutons */}
+        <div className="mt-20 h-20 w-full" />
       </div>
     </section>
   );
