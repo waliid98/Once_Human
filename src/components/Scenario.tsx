@@ -1,8 +1,9 @@
 import { VIDEO_LINKS } from "@/constants";
-import { PropsWithChildren, useRef, useState } from "react";
+import { PropsWithChildren, useEffect, useRef } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 import { useI18n } from "@/lib/i18n";
 import { AnimatedTitle } from "./animated-title";
+import { InViewVideo } from "./in-view-video";
 
 interface BentoTiltProps {
   className?: string;
@@ -12,36 +13,56 @@ const BentoTilt = ({
   children,
   className = "",
 }: PropsWithChildren<BentoTiltProps>) => {
-  const [transformStyle, setTransformStyle] = useState("");
   const itemRef = useRef<HTMLDivElement>(null);
+  const boundsRef = useRef<{ left: number; top: number; width: number; height: number } | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!itemRef.current) return;
+  const readBounds = () => {
+    const el = itemRef.current;
+    if (!el) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    boundsRef.current = { left, top, width, height };
+  };
 
-    const { left, top, width, height } =
-      itemRef.current.getBoundingClientRect();
+  useEffect(() => {
+    const onResize = () => readBounds();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
-    const relativeX = (e.clientX - left) / width;
-    const relativeY = (e.clientY - top) / height;
+  const applyTransform = () => {
+    rafRef.current = null;
+    const el = itemRef.current;
+    const bounds = boundsRef.current;
+    const point = lastPointRef.current;
+    if (!el || !bounds || !point) return;
 
+    const relativeX = (point.x - bounds.left) / bounds.width;
+    const relativeY = (point.y - bounds.top) / bounds.height;
     const tiltX = (relativeY - 0.5) * 5;
     const tiltY = (relativeX - 0.5) * -5;
 
-    const newTransform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(0.98, 0.98, 0.98)`;
-
-    setTransformStyle(newTransform);
-  };
-  const handleMouseLeave = () => {
-    setTransformStyle("");
+    el.style.transform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(0.98, 0.98, 0.98)`;
   };
 
   return (
     <div
       ref={itemRef}
       className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ transform: transformStyle }}
+      onPointerEnter={readBounds}
+      onPointerMove={(e) => {
+        lastPointRef.current = { x: e.clientX, y: e.clientY };
+        if (rafRef.current != null) return;
+        rafRef.current = window.requestAnimationFrame(applyTransform);
+      }}
+      onPointerLeave={() => {
+        if (rafRef.current != null) window.cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+        lastPointRef.current = null;
+        boundsRef.current = null;
+        if (itemRef.current) itemRef.current.style.transform = "";
+      }}
     >
       {children}
     </div>
@@ -57,11 +78,8 @@ interface BentoCardProps {
 const BentoCard = ({ src, title, description }: BentoCardProps) => {
   return (
     <article className="relative size-full overflow-hidden rounded-2xl">
-      <video
+      <InViewVideo
         src={src}
-        loop
-        muted
-        autoPlay
         className="absolute top-0 left-0 size-full object-cover object-center"
       />
 
@@ -201,13 +219,7 @@ export const Features = () => {
           </BentoTilt>
 
           <BentoTilt className="bento-tilt_2">
-            <video
-              src={VIDEO_LINKS.feature5}
-              loop
-              muted
-              autoPlay
-              className="size-full object-cover object-center"
-            />
+            <InViewVideo src={VIDEO_LINKS.feature5} className="size-full object-cover object-center" />
           </BentoTilt>
         </div>
       </div>

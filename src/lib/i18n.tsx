@@ -462,20 +462,89 @@ const normalizeLocale = (value: string | null | undefined): Locale => {
   return "en";
 };
 
+const parseRegion = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  const parts: string[] = value.replace(/_/g, "-").split("-");
+  const region = parts.find((p: string) => /^[a-z]{2}$/i.test(p) || /^[0-9]{3}$/.test(p));
+  return region ? region.toUpperCase() : null;
+};
+
+const getStoredLocale = (): Locale | null => {
+  if (typeof window === "undefined") return null;
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  return stored ? normalizeLocale(stored) : null;
+};
+
+const detectLocaleFromBrowser = (): Locale => {
+  if (typeof navigator === "undefined") return "en";
+  const candidates = [navigator.language, ...(navigator.languages ?? [])].filter(
+    (v): v is string => Boolean(v)
+  );
+
+  for (const tag of candidates) {
+    const normalized = normalizeLocale(tag);
+    if (normalized !== "en") return normalized;
+  }
+
+  const region = candidates.map(parseRegion).find(Boolean);
+  if (region) {
+    if (["FR", "BE", "CA", "LU", "MC"].includes(region)) return "fr";
+    if (["DE", "AT", "CH"].includes(region)) return "de";
+    if (["NL"].includes(region)) return "nl";
+    if (["NO"].includes(region)) return "no";
+  }
+
+  return "en";
+};
+
+const mapCountryToLocale = (country: unknown): Locale | null => {
+  if (typeof country !== "string") return null;
+  const c = country.toUpperCase();
+  if (["FR", "BE", "CA", "LU", "MC"].includes(c)) return "fr";
+  if (["DE", "AT", "CH"].includes(c)) return "de";
+  if (["NL"].includes(c)) return "nl";
+  if (["NO"].includes(c)) return "no";
+  return null;
+};
+
 const getInitialLocale = (): Locale => {
-  const stored = typeof window === "undefined" ? null : window.localStorage.getItem(STORAGE_KEY);
-  if (stored) return normalizeLocale(stored);
-  const browser =
-    typeof navigator === "undefined" ? undefined : navigator.language ?? navigator.languages?.[0];
-  return normalizeLocale(browser);
+  return getStoredLocale() ?? detectLocaleFromBrowser();
 };
 
 export const I18nProvider = ({ children }: PropsWithChildren) => {
-  const [locale, setLocale] = useState<Locale>(() => getInitialLocale());
+  const [locale, setLocaleState] = useState<Locale>(() => getInitialLocale());
+  const [isManualLocale, setIsManualLocale] = useState<boolean>(() => getStoredLocale() != null);
 
   useEffect(() => {
+    if (!isManualLocale) return;
     window.localStorage.setItem(STORAGE_KEY, locale);
-  }, [locale]);
+  }, [locale, isManualLocale]);
+
+  useEffect(() => {
+    if (isManualLocale) return;
+    if (!import.meta.env.PROD) return;
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/geo", { headers: { accept: "application/json" } });
+        if (!res.ok) return;
+        const data: unknown = await res.json();
+        const country = typeof data === "object" && data ? (data as { country?: unknown }).country : null;
+        const countryLocale = mapCountryToLocale(country);
+        if (!countryLocale) return;
+        if (locale !== "en") return;
+        if (countryLocale === "en") return;
+        setLocaleState(countryLocale);
+      } catch {
+        return;
+      }
+    })();
+  }, [isManualLocale, locale]);
+
+  const setLocale = (next: Locale) => {
+    setIsManualLocale(true);
+    setLocaleState(next);
+  };
 
   useEffect(() => {
     if (typeof document === "undefined") return;

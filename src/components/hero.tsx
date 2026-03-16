@@ -17,6 +17,7 @@ export const Hero = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadedVideos, setLoadedVideos] = useState(0);
 
+  const miniVideoRef = useRef<HTMLVideoElement>(null);
   const nextVideoRef = useRef<HTMLVideoElement>(null);
 
   const totalVideos = 4;
@@ -38,7 +39,7 @@ export const Hero = () => {
   };
 
   useEffect(() => {
-    if (loadedVideos === totalVideos - 1) setIsLoading(false);
+    if (loadedVideos >= 1) setIsLoading(false);
   }, [loadedVideos]);
 
   useGSAP(
@@ -108,10 +109,12 @@ export const Hero = () => {
               className="origin-center scale-50 opacity-0 transition-all duration-500 ease-in hover:scale-100 hover:opacity-100"
             >
               <video
-                ref={nextVideoRef}
+                ref={miniVideoRef}
                 src={getVideoSrc(upcomingVideoIndex)}
                 loop
                 muted
+                playsInline
+                preload="metadata"
                 id="current-video"
                 className="size-64 origin-center scale-150 object-cover object-center"
                 onLoadedData={handleVideoLoad}
@@ -124,6 +127,8 @@ export const Hero = () => {
             src={getVideoSrc(currentIndex)}
             loop
             muted
+            playsInline
+            preload="metadata"
             id="next-video"
             className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
             onLoadedData={handleVideoLoad}
@@ -134,6 +139,8 @@ export const Hero = () => {
             autoPlay
             loop
             muted
+            playsInline
+            preload="auto"
             className="absolute top-0 left-0 size-full object-cover object-center"
             onLoadedData={handleVideoLoad}
           />

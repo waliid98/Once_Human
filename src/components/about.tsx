@@ -52,6 +52,8 @@ export const About = () => {
           <img
             src="/img/p1_086_en_横_滑翔场景展示02_0s_陈晓尧_AIGC绘画_1200x628.webp"
             alt={t("alt.aboutBackground")}
+            loading="lazy"
+            decoding="async"
             className="absolute top-0 left-0 size-full object-cover"
           />
         </div>
