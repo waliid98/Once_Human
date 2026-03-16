@@ -43,5 +43,5 @@ export const VIDEO_LINKS = {
   hero1: "/videos/ved7.mp4",
   hero2: "/videos/ved2.mp4",
   hero3: "/videos/ved6.mp4",
-  hero4: "/videos/ved7.mp4",
+  
 } as const;
