@@ -214,9 +214,9 @@ export const Navbar = () => {
                   type="button"
                   onClick={toggleAudioIndicator}
                   className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white/90 shadow-[0_12px_32px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-white/25 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
-                  title={t("nav.audio")}
+                  title={isAudioPlaying ? "Stop Audio" : needsUnmute ? "Enable Audio" : "Play Audio"}
                 >
-                  {t("nav.audio")}
+                  {isAudioPlaying ? "Stop Audio" : needsUnmute ? "Enable Audio" : "Play Audio"}
                 </button>
               </div>
 
