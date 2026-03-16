@@ -14,12 +14,11 @@ export const Hero = () => {
   const { t } = useI18n();
   const [currentIndex, setCurrentIndex] = useState(1);
   const [hasClicked, setHasClicked] = useState(false);
-  const [shouldLoadBgVideo, setShouldLoadBgVideo] = useState(false);
-  const [isBgVideoReady, setIsBgVideoReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadedVideos, setLoadedVideos] = useState(0);
 
   const miniVideoRef = useRef<HTMLVideoElement>(null);
   const nextVideoRef = useRef<HTMLVideoElement>(null);
-  const bgVideoRef = useRef<HTMLVideoElement>(null);
 
   const totalVideos = 4;
   const upcomingVideoIndex = (currentIndex % totalVideos) + 1;
@@ -35,25 +34,13 @@ export const Hero = () => {
     return VIDEO_LINKS[key];
   };
 
-  useEffect(() => {
-    const run = () => setShouldLoadBgVideo(true);
-    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
-      .requestIdleCallback;
-    if (idle) {
-      idle(run);
-      return;
-    }
-    const t = window.setTimeout(run, 1200);
-    return () => window.clearTimeout(t);
-  }, []);
+  const handleVideoLoad = () => {
+    setLoadedVideos((prevVideos) => prevVideos + 1);
+  };
 
   useEffect(() => {
-    if (!shouldLoadBgVideo) return;
-    const t = window.setTimeout(() => {
-      bgVideoRef.current?.play().catch(() => undefined);
-    }, 0);
-    return () => window.clearTimeout(t);
-  }, [shouldLoadBgVideo]);
+    if (loadedVideos >= 1) setIsLoading(false);
+  }, [loadedVideos]);
 
   useGSAP(
     () => {
@@ -101,6 +88,16 @@ export const Hero = () => {
 
   return (
     <section id="hero" className="relative h-dvh w-screen overflow-x-hidden">
+      {isLoading && (
+        <div className="flex-center absolute z-100 h-dvh w-screen overflow-hidden bg-violet-50">
+          <div className="three-body">
+            <div className="three-body__dot" />
+            <div className="three-body__dot" />
+            <div className="three-body__dot" />
+          </div>
+        </div>
+      )}
+
       <div
         id="video-frame"
         className="bg-blue-75 relative z-10 h-dvh w-screen overflow-hidden rounded-lg"
@@ -120,6 +117,7 @@ export const Hero = () => {
                 preload="metadata"
                 id="current-video"
                 className="size-64 origin-center scale-150 object-cover object-center"
+                onLoadedData={handleVideoLoad}
               />
             </div>
           </div>
@@ -133,30 +131,18 @@ export const Hero = () => {
             preload="metadata"
             id="next-video"
             className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
+            onLoadedData={handleVideoLoad}
           />
 
-          <img
-            src="/img/about1.webp"
-            alt=""
-            aria-hidden
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            className="absolute top-0 left-0 z-0 size-full object-cover object-center"
-          />
           <video
-            ref={bgVideoRef}
-            src={
-              shouldLoadBgVideo ? getVideoSrc(currentIndex === totalVideos - 1 ? 1 : currentIndex) : undefined
-            }
+            src={getVideoSrc(currentIndex === totalVideos - 1 ? 1 : currentIndex)}
+            autoPlay
             loop
             muted
             playsInline
-            preload="none"
-            poster="/img/about1.webp"
-            onCanPlay={() => setIsBgVideoReady(true)}
-            className="absolute top-0 left-0 z-10 size-full object-cover object-center transition-opacity duration-500"
-            style={{ opacity: isBgVideoReady ? 1 : 0 }}
+            preload="auto"
+            className="absolute top-0 left-0 size-full object-cover object-center"
+            onLoadedData={handleVideoLoad}
           />
         </div>
 
