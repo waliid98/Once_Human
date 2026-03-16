@@ -524,7 +524,8 @@ export const I18nProvider = ({ children }: PropsWithChildren) => {
     if (isManualLocale) return;
     if (!import.meta.env.PROD) return;
 
-    void (async () => {
+    const run = () => {
+      void (async () => {
       try {
         const res = await fetch("/api/geo", { headers: { accept: "application/json" } });
         if (!res.ok) return;
@@ -538,7 +539,17 @@ export const I18nProvider = ({ children }: PropsWithChildren) => {
       } catch {
         return;
       }
-    })();
+      })();
+    };
+
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
+      .requestIdleCallback;
+    if (idle) {
+      idle(run);
+      return;
+    }
+    const t = window.setTimeout(run, 1500);
+    return () => window.clearTimeout(t);
   }, [isManualLocale, locale]);
 
   const setLocale = (next: Locale) => {
