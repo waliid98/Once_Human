@@ -47,25 +47,40 @@ export const Navbar = () => {
     };
 
     const startWithFallback = async () => {
-      const prefersSound = window.localStorage.getItem(SOUND_UNLOCKED_KEY) === "false";
-      if (prefersSound) {
-        const ok = await tryStart({ muted: false });
-        if (!ok && el.paused) {
-          const startedMuted = await tryStart({ muted: false });
-          if (startedMuted) {
-            el.muted = false;
-            setNeedsUnmute(false);
-          }
-        }
+      const storedPref = window.localStorage.getItem(SOUND_UNLOCKED_KEY);
+      if (storedPref == null) window.localStorage.setItem(SOUND_UNLOCKED_KEY, "true");
+
+      const okWithSound = await tryStart({ muted: false });
+      if (okWithSound) {
+        window.localStorage.setItem(SOUND_UNLOCKED_KEY, "true");
         return;
       }
 
-      const startedMuted = await tryStart({ muted: false });
-      if (startedMuted) return;
-      await tryStart({ muted: false });
+      await tryStart({ muted: true });
     };
 
     void startWithFallback();
+
+    const tryUnlockOnInteraction = () => {
+      void (async () => {
+        const ok = await tryStart({ muted: false });
+        if (!ok) return;
+        window.localStorage.setItem(SOUND_UNLOCKED_KEY, "true");
+        setNeedsUnmute(false);
+        window.removeEventListener("pointerdown", tryUnlockOnInteraction, true);
+        window.removeEventListener("keydown", tryUnlockOnInteraction, true);
+        window.removeEventListener("touchstart", tryUnlockOnInteraction, true);
+      })();
+    };
+
+    window.addEventListener("pointerdown", tryUnlockOnInteraction, true);
+    window.addEventListener("keydown", tryUnlockOnInteraction, true);
+    window.addEventListener("touchstart", tryUnlockOnInteraction, true);
+    return () => {
+      window.removeEventListener("pointerdown", tryUnlockOnInteraction, true);
+      window.removeEventListener("keydown", tryUnlockOnInteraction, true);
+      window.removeEventListener("touchstart", tryUnlockOnInteraction, true);
+    };
   }, []);
 
   const enableSound = () => {
@@ -182,7 +197,6 @@ export const Navbar = () => {
                     src="/audio/loop.mp3"
                     className="hidden"
                     autoPlay
-                    muted
                     loop
                     playsInline
                     preload="auto"
@@ -200,9 +214,9 @@ export const Navbar = () => {
                   type="button"
                   onClick={toggleAudioIndicator}
                   className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white/90 shadow-[0_12px_32px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-white/25 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
-                  title={needsUnmute ? t("nav.enableSound") : t("nav.audio")}
+                  title={t("nav.audio")}
                 >
-                  {needsUnmute ? t("nav.enableSound") : t("nav.audio")}
+                  {t("nav.audio")}
                 </button>
               </div>
 
@@ -308,4 +322,3 @@ export const Navbar = () => {
     </header>
   );
 };
-dans ce code je veux sound play par default active 
